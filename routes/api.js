@@ -17,4 +17,15 @@ router.get('/mockService/v1/query', (req, res, next) => {
     }
     res.send(JSON.stringify(response));
 })
+router.get('/mockService/v1/detail', (req, res, next) => {
+    const response = {
+        code: 0,
+        data: {
+            list: new User({
+                name: 'detail'
+            })
+        }
+    }
+    res.send(JSON.stringify(response));
+})
 module.exports = router;
