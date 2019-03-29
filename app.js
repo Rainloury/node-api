@@ -4,7 +4,6 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
-// const pathToSwaggerUi = require('swagger-ui-dist').absolutePath();
 
 const api = require('./routes/api');
 
@@ -27,7 +26,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use('/static', express.static(path.resolve(__dirname, 'public')));
-app.use('/node-api', express.static(path.resolve(__dirname, 'public/swagger-ui-dist')));
+app.use('/swagger-ui', express.static(path.resolve(__dirname, 'public/swagger-ui-dist')));
 // register router
 app.use('/api', api)
 

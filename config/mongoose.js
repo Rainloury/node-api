@@ -8,8 +8,6 @@ module.exports = () => {
   db.on('error', console.error.bind(console, '连接错误：'));
   db.once('open', (callback) => {
     console.log('MongoDB连接成功！');
-    const pathToSwaggerUi = require('swagger-ui-dist');
-    console.log(pathToSwaggerUi)
   });
 
   return db;
