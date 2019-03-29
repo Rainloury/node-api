@@ -6,7 +6,7 @@ const User = require('../models/User');
 
 //Api 
 
-router.get('/mockService/v1/query', (req, res, next) => {
+router.post('/mockService/v1/query', (req, res, next) => {
     const response = {
         code: 0,
         data: {
@@ -17,7 +17,7 @@ router.get('/mockService/v1/query', (req, res, next) => {
     }
     res.send(JSON.stringify(response));
 })
-router.get('/mockService/v1/detail', (req, res, next) => {
+router.post('/mockService/v1/detail', (req, res, next) => {
     const response = {
         code: 0,
         data: {
