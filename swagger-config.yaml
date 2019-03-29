@@ -1,4 +1,0 @@
----
-url: "https://node-mockapi.herokuapp.com/static/swagger/swagger.json"
-dom_id: "#swagger-ui"
-validatorUrl: ""
