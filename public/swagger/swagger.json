@@ -9,27 +9,25 @@
       "email": "rainloury@gmail.com"
     },
     "license": {
-      "name": "Heroku",
+      "name": "LICENSE",
       "url": "https://github.com/Rainloury/node-api/blob/master/LICENSE"
     }
   },
-  "host": "https://node-mockapi.herokuapp.com",
+  "host": "node-mockapi.herokuapp.com",
   "basePath": "/api",
   "schemes": [
     "https",
     "http"
   ],
   "paths": {
-    "/user/login": {
+    "/mockService/v1/query": {
       "get": {
         "tags": [
-          "user"
+          "query"
         ],
         "summary": "Logs user into the system",
         "description": "",
-        "operationId": "loginUser",
         "produces": [
-          "application/xml",
           "application/json"
         ],
         "parameters": [
@@ -52,19 +50,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "type": "string"
-            },
-            "headers": {
-              "X-Rate-Limit": {
-                "type": "integer",
-                "format": "int32",
-                "description": "calls per hour allowed by the user"
-              },
-              "X-Expires-After": {
-                "type": "string",
-                "format": "date-time",
-                "description": "date in UTC when token expires"
-              }
+              "type": "object"
             }
           },
           "400": {
