@@ -46,7 +46,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use('/static', express.static(path.resolve(__dirname, 'public')));
-app.use('/swagger-ui', express.static(path.resolve(__dirname, 'public/swagger-ui-dist')));
+app.use('/swagger-ui', express.static(path.resolve(__dirname, 'public/swagger')));
 // register router
 app.use('/api', api)
 
