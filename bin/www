@@ -2,49 +2,149 @@
  * Module dependencies.
  */
 
-var app = require('../app');
-var debug = require('debug')('myapp:server');
-var http = require('http');
+const app = require("../app");
+const debug = require("debug")("myapp:server");
+const http = require("http");
+const rp = require("request-promise");
+const schedule = require("node-schedule");
+const senecaWeb = require("seneca-web");
+const apollo = require("node-apollo");
+const { promisify } = require("util");
+const strategies = require("../service/auth/strategy");
+const { INITDICT } = require("../service/constant");
+
 /**
  * Get port from environment and store in Express.
  */
-
-var port = normalizePort(process.env.PORT || '8080');
-app.set('port', port);
+const config = {
+  configServerUrl: process.env.APOLLO,
+  appId: "node-api",
+  clusterName: "default",
+  namespaceName: ["application"]
+};
+apollo.remoteConfigServiceSkipCache(config).then(result => {
+  console.log("成功获取配置信息");
+  console.log(result);
+  for (let k in result) {
+    process.env[k] = result[k];
+  }
+  var port = normalizePort(process.env.PORT || "8080");
+  app.set("port", port);
+});
 
 /**
  * Create HTTP server.
  */
 
 var server = http.createServer(app);
+const senecaService = seneca({
+  debug: {
+    undead: true
+  },
+  timeout: 360000
+});
+const senecaWebConfig = {
+  context: app,
+  adapter: require("seneca-web-adapter-express"),
+  options: {
+    parseBody: false
+  },
+  auth: {
+    authenticate: strategy => {
+      if (strategies[strategy]) {
+        return strategies[strategy](senecaService);
+      } else {
+        return strategies.auth(senecaService);
+      }
+    }
+  }
+};
 
-/**
- * Listen on provided port, on all network interfaces.
- */
+senecaService
+  .use(senecWeb, senecaWebConfig)
+  .use("basic")
+  .use("seneca-standard-query")
+  .use("seneca-store-query")
+  .use("entity")
+  .use(require("../service/middleware/logs"))
+  .use(require("../service/micro/user/apis"))
+  .use(require("../service/micro/user"))
+  .client({
+    port: process.env.REDIS_PORT,
+    pin: "role: redis"
+  })
+  .client({
+    port: process.env.ORACLE_PORT,
+    pin: "role: oracle"
+  });
 
-server.listen(port);
-console.log('Magic happens on port ' + port);
-server.on('error', onError);
-server.on('listening', onListening);
+senecaService.use("mysql-store", {
+  multipleStatements: true,
+  host: process.env.DATABASE_HOST,
+  port: process.env.DATABASE_PORT,
+  name: process.env.DATABASE_SCHEMA,
+  user: process.env.DATABASE_USER,
+  password: process.env.DATABASE_PWD,
+  connectionLimit: 10,
+  auto_increment: true,
+  binary: true
+});
+
+senecaService._act = promisify(senecaService.act);
+
+senecaService.ready(() => {
+  /**
+   * Listen on provided port, on all network interfaces.
+   */
+  rp({
+    uri: `${process.env.API_SERVICE}/dictservice/v1/dict/${INITDICT.join(",")}`
+  })
+    .then(res => {
+      const result = JSON.parse(res);
+      if (result.success) {
+        global.dicts = {};
+        server.listen(port);
+        server.on("error", onError);
+        senecaService.log.info("++++++++++ 服务启动 +++++++++");
+        schedule.scheduleJog("XXXX", function() {
+          senecaSevice.make("EXTERNAL_INVOKE_LOG").load$(
+            {
+              id: 1
+            },
+            (err, list) => {
+              if (!err) {
+                console.log("++++++++++++++ 心跳检测正常 ++++++++");
+              }
+            }
+          );
+        });
+      } else {
+        senecaSevice.log.info("++++++++++++++服务启动失败+++++++++++++++");
+      }
+    })
+    .catch(e => {
+      senecaSevice.log.info("++++++++++++++服务启动失败+++++++++++++++");
+    });
+});
 
 /**
  * Normalize a port into a number, string, or false.
  */
 
 function normalizePort(val) {
-    var port = parseInt(val, 10);
+  var port = parseInt(val, 10);
 
-    if (isNaN(port)) {
-        // named pipe
-        return val;
-    }
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
 
-    if (port >= 0) {
-        // port number
-        return port;
-    }
+  if (port >= 0) {
+    // port number
+    return port;
+  }
 
-    return false;
+  return false;
 }
 
 /**
@@ -52,27 +152,25 @@ function normalizePort(val) {
  */
 
 function onError(error) {
-    if (error.syscall !== 'listen') {
-        throw error;
-    }
+  if (error.syscall !== "listen") {
+    throw error;
+  }
 
-    var bind = typeof port === 'string' ?
-        'Pipe ' + port :
-        'Port ' + port;
+  var bind = typeof port === "string" ? "Pipe " + port : "Port " + port;
 
-    // handle specific listen errors with friendly messages
-    switch (error.code) {
-        case 'EACCES':
-            console.error(bind + ' requires elevated privileges');
-            process.exit(1);
-            break;
-        case 'EADDRINUSE':
-            console.error(bind + ' is already in use');
-            process.exit(1);
-            break;
-        default:
-            throw error;
-    }
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case "EACCES":
+      console.error(bind + " requires elevated privileges");
+      process.exit(1);
+      break;
+    case "EADDRINUSE":
+      console.error(bind + " is already in use");
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
 }
 
 /**
@@ -80,9 +178,7 @@ function onError(error) {
  */
 
 function onListening() {
-    var addr = server.address();
-    var bind = typeof addr === 'string' ?
-        'pipe ' + addr :
-        'port ' + addr.port;
-    debug('Listening on ' + bind);
+  var addr = server.address();
+  var bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port;
+  debug("Listening on " + bind);
 }

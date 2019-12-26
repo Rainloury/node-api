@@ -1,17 +1,52 @@
 {
-  "addons": [
-
-  ],
-  "buildpacks": [
-
-  ],
-  "description": "",
-  "env": {
-  },
-  "formation": {
-  },
-  "name": "node-api",
-  "scripts": {
-  },
-  "stack": "heroku-18"
+  "apps": [
+    {
+      "name": "api",
+      "script": "./bin/www",
+      "instances": 1,
+      "exec_mode": "fork",
+      "watch": false,
+      "log_date_format": "YYYY-MM-DD HH:mm:ss",
+      "error_file": "./logs/err.log",
+      "out_file": "./logs/out.log",
+      "combine_logs": false,
+      "node_args": "--expose-gc",
+      "env_test": {
+        "APOLLO": "http: //xx"
+      },
+      "env_uat": {
+        "APOLLO": "http: //xx"
+      }
+    },
+    {
+      "name": "api-redis",
+      "script": "./app.redis.js",
+      "watch": false,
+      "log_date_format": "YYYY-MM-DD HH:mm:ss",
+      "error_file": "./logs/err.log",
+      "out_file": "./logs/out.log",
+      "combine_logs": false,
+      "env_test": {
+        "APOLLO": "http: //xx"
+      },
+      "env_uat": {
+        "APOLLO": "http: //xx"
+      }
+    },
+    {
+      "name": "api-oracle",
+      "script": "./app.oracle.js",
+      "watch": false,
+      "log_date_format": "YYYY-MM-DD HH:mm:ss",
+      "error_file": "./logs/err.log",
+      "out_file": "./logs/out.log",
+      "combine_logs": false,
+      "env_test": {
+        "APOLLO": "http: //xx"
+      },
+      "env_uat": {
+        "APOLLO": "http: //xx"
+      }
+    }
+  ]
 }

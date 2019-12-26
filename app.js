@@ -1,8 +1,15 @@
+const request = require('request');
+const path = require("path");
+const express = require("express");
+const cookieParser = require("cookie-parser");
+const bodyParser = require("body-parser");
+const compression = require('compression');
+
+const multer = require('multer');
+const upload = multer({ dest: 'upload/' });
+
 const createError = require('http-errors');
-const express = require('express');
-const path = require('path');
-const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
+
 const logger = require('morgan');
 
 const api = require('./routes/api');
@@ -11,6 +18,10 @@ const mongoose = require('./config/mongoose.js')
 const db = mongoose();
 
 const app = express();
+
+if (process.env.NODE_ENV === 'test') {
+    app.use(`${process.env.CONTEXT}/swagger`, express.static('swagger'));
+}
 
 app.all('*', (req, res, next) => {
     const {
@@ -36,17 +47,24 @@ app.all('*', (req, res, next) => {
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
+app.use(logger("dev"));
 app.use(bodyParser.urlencoded({
     extended: true
 }));
 app.use(bodyParser.json());
 
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.json({ limit: '10mb', extended: false, parameterLimit: 100000 }, (req, res, next) => {
+    next();
+}));
+app.use(express.urlencoded({ limit: '10mb', extended: false, multipart: true, parameterLimit: 100000 }, (req, res, next) => {
+    next();
+}));
+
+app.use(upload.any());
 app.use(cookieParser());
+app.use(compression());
 app.use('/static', express.static(path.resolve(__dirname, 'public')));
-app.use('/swagger-ui', express.static(path.resolve(__dirname, 'public/swagger')));
+
 // register router
 app.use('/api', api)
 

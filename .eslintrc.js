@@ -5,9 +5,7 @@
     "browser": true,
     "node": true,
     "commonjs": true,
-    "amd": true,
-    "es6": true,
-    "mocha": true
+    "es6": true
   },
   // JavaScript 语言选项
   "parserOptions": {
@@ -33,8 +31,6 @@
     "eslint:recommended",
     "plugin:react/recommended"
   ],
-  //-----让eslint支持 JSX end
-
   /**
    * "off" 或 0 - 关闭规则
    * "warn" 或 1 - 开启规则，使用警告级别的错误：warn (不会导致程序退出),
@@ -48,7 +44,7 @@
     // 禁止在条件中使用常量表达式
     // if (false) {
     // doSomethingUnfinished();
-    // } //cuowu
+    // } // 报错
     "no-constant-condition": 2,
     // 禁止在正则表达式中使用控制字符 ：new RegExp("\x1f")
     "no-control-regex": 2,
@@ -71,7 +67,7 @@
     "no-ex-assign": 2,
     // 禁止不必要的布尔转换
     "no-extra-boolean-cast": 2,
-    // 禁止不必要的括号 //(a * b) + c;//报错
+    // 禁止不必要的括号 //(a * b) + c;// 报错
     "no-extra-parens": 0,
     // 禁止不必要的分号
     "no-extra-semi": 2,
@@ -102,9 +98,8 @@
     // 强制使用有效的 JSDoc 注释
     "valid-jsdoc": 1,
     // 强制 typeof 表达式与有效的字符串进行比较
-    // typeof foo === "undefimed" 错误
+    // typeof foo === "undefined" 错误
     "valid-typeof": 2,
-
 
     //////////////
     // 最佳实践 //
